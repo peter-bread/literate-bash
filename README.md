@@ -2,9 +2,9 @@
 
 Very basic literate programming for Bash and Markdown.
 
-Files ending in `.lsh.md` are interpreted as literate Markdwon files.
+Files ending in `.lsh.md` can interpreted as literate Markdown files.
 
-All code must be in codeblocks starting with <code>```bash</code>.
+All code must be in code blocks starting with <code>```bash</code>.
 
 Example:
 
