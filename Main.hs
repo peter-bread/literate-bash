@@ -7,9 +7,11 @@ import Data.List (stripPrefix)
 
 main :: IO ()
 main = do
+  -- TODO: cmdline arg + validation
   content <- readFile "example.lsh.md"
   let contentLines = lines content
   let codeLines = getCodeLines [] False contentLines
+  -- TODO: run the code
   putStrLn (unlines codeLines)
 
 -- >>> getCodeLines [] False ["hello", "```bash", "foo", "bar", "```", "bye", "```bash", "baz", "```", "end"]
