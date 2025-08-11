@@ -5,27 +5,47 @@ module Main where
 import Data.Char (toUpper)
 import Data.List (stripPrefix)
 
-type CodeLines = [String]
+type Code = String
+type Line = String
+
+type Lines = [String]
+type CodeLines = [Code]
 
 data ProcessingMode = Code | Normal
   deriving (Eq, Show)
 
+-- TODO: cmdline arg + validation
+-- TODO: run the code
+
 main :: IO ()
 main = do
-  -- TODO: cmdline arg + validation
-  content <- readFile "example.lsh.md"
-  let contentLines = lines content
-  let codeLines = getCodeLines [] Normal contentLines
-  -- TODO: run the code
-  putStrLn (unlines codeLines)
+  code <- getCodeFromFile "example.lsh.md"
+  putStrLn code
 
--- >>> getCodeLines [] Normal ["hello", "```bash", "foo", "bar", "```", "bye", "```bash", "baz", "```", "end"]
+-- TODO: https://github.com/peter-bread/literate-bash/issues/1
+getCodeFromFile :: FilePath -> IO Code
+getCodeFromFile = fmap unlines . getCodeLinesFromFile
+
+getCodeLinesFromFile :: FilePath -> IO CodeLines
+getCodeLinesFromFile filepath = do
+  content <- readFile filepath
+  let contentLines = lines content
+  return (getCodeLinesFromLines contentLines)
+
+-- >>> getCodeLinesFromLines ["hello", "```bash", "foo", "bar", "```", "bye", "```bash", "baz", "```", "end"]
 -- ["foo","bar","","baz",""]
-getCodeLines :: CodeLines -> ProcessingMode -> [String] -> CodeLines
-getCodeLines acc _ [] = reverse acc
-getCodeLines acc Normal (x : xs) = case x of
-  (stripPrefix "```bash" -> Just _) -> getCodeLines acc Code xs
-  _ -> getCodeLines acc Normal xs
-getCodeLines acc Code (x : xs) = case x of
-  (stripPrefix "```" -> Just _) -> getCodeLines ("" : acc) Normal xs
-  _ -> getCodeLines (x : acc) Code xs
+getCodeLinesFromLines :: Lines -> CodeLines
+getCodeLinesFromLines = go [] Normal
+ where
+  go :: CodeLines -> ProcessingMode -> Lines -> CodeLines
+  go acc _ [] = reverse acc
+  go acc Normal (x : xs) = case x of
+    (stripPrefix "```bash" -> Just _) -> go acc Code xs
+    _ -> go acc Normal xs
+  go acc Code (x : xs) = case x of
+    (stripPrefix "```" -> Just _) -> go ("" : acc) Normal xs
+    _ -> go (x : acc) Code xs
+
+-- TODO: use these to match entire line rather than just prefix?
+-- "```bash" -> go acc Code xs
+-- "```" -> go ("" : acc) Normal xs
