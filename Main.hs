@@ -20,5 +20,5 @@ getCodeLines acc False (x : xs) = case x of
   (stripPrefix "```bash" -> Just _) -> getCodeLines acc True xs
   _ -> getCodeLines acc False xs
 getCodeLines acc True (x : xs) = case x of
-  (stripPrefix "```" -> Just _) -> getCodeLines acc False xs
+  (stripPrefix "```" -> Just _) -> getCodeLines (acc ++ [""]) False xs
   _ -> getCodeLines (acc ++ [x]) True xs
